@@ -1,10 +1,11 @@
 generate_random_name() {
     cat /dev/urandom | tr -dc 'a-z' | fold -w 8 | head -n 1
 }
-name1 = $(generate_random_name)
-name2 = $(generate_random_name)
-name3 = $(generate_random_name)
-name4 = $(generate_random_name)
-name5 = $(generate_random_name)
+
+name1=$(generate_random_name)
+name2=$(generate_random_name)
+name3=$(generate_random_name)
+name4=$(generate_random_name)
+name5=$(generate_random_name)
 
 gcloud compute instances create $name1 $name2 $name3 $name4 --zone=us-central1-a --machine-type=e2-custom-6-16384 --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default --maintenance-policy=MIGRATE --provisioning-model=STANDARD --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append --tags=http-server,https-server,lb-health-check --create-disk=auto-delete=yes,boot=yes,device-name=$name1,image=projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240830,mode=rw,size=10,type=pd-balanced --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --labels=goog-ec-src=vm_add-gcloud --reservation-affinity=any --metadata=startup-script=apt\ \install\ git\ -y$'\n'git\ clone\ https://github.com/Cvayoyo/ario_ccminer$'\n'cd\ ario_ccminer$'\n'chmod\ \+x\ \*$'\n'./install.sh && gcloud compute instances create $name5 --zone=us-west1-a --machine-type=e2-custom-6-16384 --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default --maintenance-policy=MIGRATE --provisioning-model=STANDARD --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append --tags=http-server,https-server,lb-health-check --create-disk=auto-delete=yes,boot=yes,device-name=$name5,image=projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240830,mode=rw,size=10,type=pd-balanced --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --labels=goog-ec-src=vm_add-gcloud --reservation-affinity=any --metadata=startup-script=apt\ \install\ git\ -y$'\n'git\ clone\ https://github.com/Cvayoyo/ario_ccminer$'\n'cd\ ario_ccminer$'\n'chmod\ \+x\ \*$'\n'./install.sh
