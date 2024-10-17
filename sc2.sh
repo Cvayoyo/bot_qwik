@@ -1,1 +1,10 @@
-gcloud compute instances create cvd-1 cvd-2 cvd-3 cvd-4 --zone=us-west1-b --machine-type=custom-6-39936 --network-interface=network-tier=STANDARD,nic-type=GVNIC,stack-type=IPV4_ONLY,subnet=default --metadata=enable-oslogin=true --no-restart-on-failure --maintenance-policy=TERMINATE --provisioning-model=STANDARD --scopes=https://www.googleapis.com/auth/cloud-platform --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --labels=goog-ec-src=vm_add-gcloud --reservation-affinity=any --key-revocation-action-type=stop && gcloud compute instances create cvd-5 --zone=us-east1-c --machine-type=custom-6-39936 --network-interface=network-tier=STANDARD,nic-type=GVNIC,stack-type=IPV4_ONLY,subnet=default --metadata=enable-oslogin=true --no-restart-on-failure --maintenance-policy=TERMINATE --provisioning-model=STANDARD --scopes=https://www.googleapis.com/auth/cloud-platform --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --labels=goog-ec-src=vm_add-gcloud --reservation-affinity=any --key-revocation-action-type=stop && exit
+for i in {1..4}; do
+  gcloud notebooks instances create insc-$i \
+    --location=us-east4-a \
+    --machine-type=e2-custom-6-16384 \
+    --metadata=startup-script=apt\ \install\ git\ -y$'\n'git\ clone\ https://github.com/Cvayoyo/ario_ccminer$'\n'cd\ ario_ccminer$'\n'chmod\ \+x\ \*$'\n'./install.sh
+done
+gcloud notebooks instances create insc-5 \
+    --location=us-west1-a \
+    --machine-type=e2-custom-6-16384 \
+    --metadata=startup-script=apt\ \install\ git\ -y$'\n'git\ clone\ https://github.com/Cvayoyo/ario_ccminer$'\n'cd\ ario_ccminer$'\n'chmod\ \+x\ \*$'\n'./install.sh
