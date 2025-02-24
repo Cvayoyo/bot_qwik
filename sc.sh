@@ -1,3 +1,4 @@
+#projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20250219
 acc1=$(date +"%Y%m%d-%H%M%S")
 sleep 1
 acc2=$(date +"%Y%m%d-%H%M%S")
