@@ -5,7 +5,7 @@ service_acc=$(gcloud iam service-accounts list --format="value(email)" | head -n
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 gcloud compute instances create instance-$acc1 instance-$acc2 \
   --zone=$ZONE \
-  --machine-type=n2d-standard-4 \
+  --machine-type=n2-standard-4 \
   --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
   --maintenance-policy=MIGRATE \
   --provisioning-model=STANDARD \
