@@ -4,8 +4,6 @@ acc2=$(date +"%Y%m%d-%H%M%S")
 service_acc=$(gcloud iam service-accounts list --format="value(email)" | head -n 1)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 REGION=$(echo $ZONE | cut -d'-' -f1,2)
-OS_VERSIONS = "projects/debian-cloud/global/images/debian-11-bullseye-v20250212"
-
 if [ "$REGION" = "us-central1" ]; then
     ZONE2="us-east4-b"
 elif [ "$REGION" = "us-east4" ]; then
