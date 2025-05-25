@@ -15,7 +15,7 @@ gcloud compute instances create instance-$acc1 instance-$acc2 \
     --provisioning-model=STANDARD \
     --service-account=$service_acc \
     --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append \
-    --create-disk=auto-delete=yes,boot=yes,device-name=$acc1,disk-resource-policy=projects/$PROJECT_ID/regions/$ZONE_REGION/resourcePolicies/default-schedule-1,image=projects/ubuntu-os-accelerator-images/global/images/ubuntu-accelerator-2404-amd64-with-nvidia-570-v20250507,mode=rw,size=10,type=pd-balanced \
+    --create-disk=auto-delete=yes,boot=yes,device-name=$acc1,image=projects/ubuntu-os-accelerator-images/global/images/ubuntu-accelerator-2404-amd64-with-nvidia-570-v20250507,mode=rw,size=10,type=pd-balanced
     --no-shielded-secure-boot \
     --shielded-vtpm \
     --shielded-integrity-monitoring \
