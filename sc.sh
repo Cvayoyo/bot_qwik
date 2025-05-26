@@ -5,7 +5,7 @@ service_acc=$(gcloud iam service-accounts list --format="value(email)" | sed -n 
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 PROJECT_ID=$(gcloud config get-value core/project)
 ZONE_REGION=$(echo "$ZONE" | cut -d '-' -f 1-2)
-gcloud services enable osconfig.googleapis.com --project=$PROJECT_ID --quiet
+gcloud services enable osconfig.googleapis.com
 printf 'agentsRule:\n  packageState: installed\n  version: latest\ninstanceFilter:\n  inclusionLabels:\n  - labels:\n      goog-ops-agent-policy: v2-x86-template-1-4-0\n' > config.yaml 
 gcloud compute instances ops-agents policies create goog-ops-agent-v2-x86-template-1-4-0-$ZONE \
     --project=$PROJECT_ID \
