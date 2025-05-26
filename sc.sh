@@ -33,11 +33,4 @@ gcloud compute instances create instance-$acc1 instance-$acc2 \
     --shielded-vtpm \
     --shielded-integrity-monitoring \
     --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud \
-    --reservation-affinity=any \
-&& \
-printf 'agentsRule:\n  packageState: installed\n  version: latest\ninstanceFilter:\n  inclusionLabels:\n  - labels:\n      goog-ops-agent-policy: v2-x86-template-1-4-0\n' > config.yaml \
-&& \
-gcloud compute instances ops-agents policies create goog-ops-agent-v2-x86-template-1-4-0-$ZONE \
-    --project=$PROJECT_ID \
-    --zone=$ZONE \
-    --file=config.yaml
+    --reservation-affinity=any 
