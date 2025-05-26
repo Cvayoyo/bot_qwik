@@ -2,10 +2,6 @@ screen -dmS deploy_instances bash -c '
 acc1=$(date +"%Y%m%d-%H%M%S")
 sleep 1
 acc2=$(date +"%Y%m%d-%H%M%S")
-sleep 1
-acc3=$(date +"%Y%m%d-%H%M%S")
-sleep 1
-acc4=$(date +"%Y%m%d-%H%M%S")
 service_acc=$(gcloud iam service-accounts list --format="value(email)" | sed -n 2p)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 PROJECT_ID=$(gcloud config get-value core/project)
