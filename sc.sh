@@ -37,4 +37,4 @@ gcloud compute instances create instance-$acc1 instance-$acc2 \
     --shielded-vtpm \
     --shielded-integrity-monitoring \
     --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud \
-    --reservation-affinity=any && \ 
+    --reservation-affinity=any
