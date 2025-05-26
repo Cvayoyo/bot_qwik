@@ -4,6 +4,8 @@ acc2=$(date +"%Y%m%d-%H%M%S")
 service_acc=$(gcloud iam service-accounts list --format="value(email)" | sed -n 2p)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 PROJECT_ID=$(gcloud config get-value core/project)
+ZONE_REGION=$(echo "$ZONE" | cut -d '-' -f 1-2)
+gcloud services enable osconfig.googleapis.com --project=$PROJECT_ID --quiet
 gcloud compute instances create instance-$acc1 instance-$acc2 \
     --project=$PROJECT_ID \
     --zone=$ZONE \
