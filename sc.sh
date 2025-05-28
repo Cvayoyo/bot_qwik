@@ -14,5 +14,5 @@ gcloud compute instances create instance-$acc1 instance-$acc2 --project=$PROJECT
 echo "Proses selesai!"
 '
 # Loop untuk menunggu screen selesai, lalu tutup Cloud Shell
-sleep 13
+sleep 15
 exit
