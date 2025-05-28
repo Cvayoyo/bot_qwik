@@ -14,7 +14,5 @@ gcloud compute instances create instance-$acc1 instance-$acc2 --project=$PROJECT
 echo "Proses selesai!"
 '
 # Loop untuk menunggu screen selesai, lalu tutup Cloud Shell
-while screen -ls | grep -q deploy_instances; do
-  sleep 1
-done
+sleep 20
 exit
