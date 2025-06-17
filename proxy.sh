@@ -36,4 +36,4 @@ EOF
 chmod +x deploy.sh && nohup ./deploy.sh > deploy.log 2>&1 &"
 
 
-gcloud compute --project=qwiklabs-gcp-01-73af3a06f110 firewall-rules create lolip --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
+gcloud compute firewall-rules create lolip --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
