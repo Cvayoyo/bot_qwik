@@ -36,4 +36,4 @@ EOF
 chmod +x deploy.sh && nohup ./deploy.sh > deploy.log 2>&1 &"
 
 
-gcloud compute firewall-rules create lolipsdfr --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
+gcloud compute firewall-rules create lolipssdfr --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
