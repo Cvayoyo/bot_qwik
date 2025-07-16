@@ -4,7 +4,7 @@ PROJECT_ID=\$(gcloud config get-value core/project)
 ZONE_REGION=\$(echo \"\$ZONE\" | cut -d '-' -f 1-2)
 SERVICE_ACC=\$(gcloud iam service-accounts list --format=\"value(email)\" | sed -n 2p)
 
-for i in {1..2}; do
+for i in {1..1}; do
   ts=\$(date +\"%Y%m%d-%H%M%S\")
   name=\"instance-\$ts\"
   echo \"Membuat \$name...\"
