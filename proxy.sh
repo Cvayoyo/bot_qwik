@@ -12,7 +12,7 @@ for i in {1..2}; do
   gcloud compute instances create \"\$name\" \\
     --project=\"\$PROJECT_ID\" \\
     --zone=\"\$ZONE\" \\
-    --machine-type=n2-standard-2 \\
+    --machine-type=e2-medium \\
     --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \\
     --metadata=startup-script='wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.23.4/shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && tar -xvf shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && mv ssserver sslocal ssmanager ssurl /usr/local/bin/ && chmod +x /usr/local/bin/ss* && ip_private=\$(hostname -I | awk '\''{print \$1}'\'') && ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 10 --tcp-fast-open -v > /var/log/ssserver.log 2>&1 &' \\
     --tags=allow-all \\
