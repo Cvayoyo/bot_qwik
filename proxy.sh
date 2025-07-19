@@ -35,5 +35,5 @@ gcloud compute instances list --filter=\"tags.items=allow-all\" --format=\"table
 EOF
 chmod +x deploy.sh && nohup ./deploy.sh > deploy.log 2>&1 &"
 
-ts=\$(date +\"%Y%m%d-%H%M%S\")
-gcloud compute firewall-rules create $ts --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
+ts=$(date +%Y%m%d-%H%M%S)
+gcloud compute firewall-rules create "fw-allow-all-$ts" --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
