@@ -1,5 +1,3 @@
-#!/bin/bash
-
 acc2=$(date +"%Y%m%d-%H%M%S")
 sleep 1
 acc3=$(date +"%Y%m%d-%H%M%S")
