@@ -1,40 +1,22 @@
 bash -c "cat << 'EOF' > deploy.sh
-ZONE=\$(gcloud compute project-info describe --format=\"value(commonInstanceMetadata.items[google-compute-default-zone])\")
+ZONE=\$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
 PROJECT_ID=\$(gcloud config get-value core/project)
 ZONE_REGION=\$(echo \"\$ZONE\" | cut -d '-' -f 1-2)
-SERVICE_ACC=\$(gcloud iam service-accounts list --format=\"value(email)\" | sed -n 2p)
+SERVICE_ACC=\$(gcloud iam service-accounts list --format='value(email)' | sed -n 2p)
 
-# Ubah jumlah instance yang mau dibuat di sini
-COUNT=3
+ts=\$(date +'%Y%m%d-%H%M%S')
 
-# Generate nama-nama unik
-INSTANCE_NAMES=\"\"
-for i in \$(seq 1 \$COUNT); do
-  RAND=\$(tr -dc a-z0-9 </dev/urandom | head -c 6)
-  INSTANCE_NAMES=\"\$INSTANCE_NAMES instance-\$(date +%Y%m%d)-\$RAND\"
-done
+# Daftar nama instance
+INSTANCES=\"instance-a-\$ts instance-b-\$ts instance-c-\$ts instance-d-\$ts\"
 
-echo \"Akan membuat \$COUNT instance: \$INSTANCE_NAMES\"
+echo \"Membuat instance: \$INSTANCES...\"
 
-# Jalankan create sekaligus
-gcloud compute instances create \$INSTANCE_NAMES \\
+gcloud compute instances create \$INSTANCES \\
   --project=\"\$PROJECT_ID\" \\
   --zone=\"\$ZONE\" \\
   --machine-type=e2-medium \\
   --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \\
-  --metadata=startup-script='apt update -y && apt install -y shadowsocks-libev && echo \"[Unit]
-Description=Shadowsocks Rust Server
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/bin/bash -c \"/usr/bin/ss-server -u -s \$(hostname -I | awk \\\"{print \\\\\$1}\\\") -p 8388 -k Pass -m aes-128-gcm -n 65535 --fast-open --reuse-port --no-delay -v\"
-Restart=always
-StandardOutput=file:/var/log/ssserver.log
-StandardError=file:/var/log/ssserver.log
-
-[Install]
-WantedBy=multi-user.target\" > /etc/systemd/system/shadowsocks-server.service && systemctl daemon-reexec && systemctl daemon-reload && systemctl enable shadowsocks-server && systemctl start shadowsocks-server' \\
+  --metadata=startup-script='wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.23.4/shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && tar -xvf shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && mv ssserver sslocal ssmanager ssurl /usr/local/bin/ && chmod +x /usr/local/bin/ss* && ip_private=\$(hostname -I | awk '\''{print \$1}'\'') && ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 10 --tcp-fast-open -v > /var/log/ssserver.log 2>&1 &' \\
   --tags=allow-all \\
   --maintenance-policy=MIGRATE \\
   --provisioning-model=STANDARD \\
@@ -47,12 +29,18 @@ WantedBy=multi-user.target\" > /etc/systemd/system/shadowsocks-server.service &&
   --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud \\
   --reservation-affinity=any
 
-echo \"SEMUA INSTANCE SELESAI DIBUAT\"
+echo \"SEMUA INSTANCE SELESAI DIBUAT!\"
 gcloud compute instances list --filter=\"tags.items=allow-all\" --format=\"table(name,networkInterfaces[0].accessConfigs[0].natIP)\"
 EOF
 
 chmod +x deploy.sh && nohup ./deploy.sh > deploy.log 2>&1 &"
 
-# Buat firewall allow-all
+# Firewall rule tetap dibuat sekali
 ts=$(date +%Y%m%d-%H%M%S)
-gcloud compute firewall-rules create "fw-allow-all-$ts" --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0
+gcloud compute firewall-rules create "fw-allow-all-$ts" \
+  --direction=INGRESS \
+  --priority=1000 \
+  --network=default \
+  --action=ALLOW \
+  --rules=all \
+  --source-ranges=0.0.0.0/0
