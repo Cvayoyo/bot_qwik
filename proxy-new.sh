@@ -1,4 +1,4 @@
-bash -c "cat << 'EOF' > deploy.sh
+bash -c "cat <<'EOF' > deploy.sh
 ZONE=\$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
 
 gcloud compute ssh startup-vm --zone=\"\$ZONE\" --command '\
@@ -12,7 +12,7 @@ nohup ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 1
 
 EOF
 
-# Buka firewall hanya sekali (ignore error kalau sudah ada)
+# Buat firewall kalau belum ada
 gcloud compute firewall-rules create fw-ss-8388 \
   --allow tcp:8388,udp:8388 \
   --direction=INGRESS \
