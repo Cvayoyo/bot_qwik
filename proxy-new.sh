@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Ambil zona default
 ZONE=$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
 
-# SSH ke VM dan jalankan Shadowsocks di background
+# SSH ke VM dan jalankan Shadowsocks
 yes | gcloud compute ssh startup-vm --zone="$ZONE" --quiet --command '\
 wget -q https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.23.4/shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && \
 tar -xf shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && \
@@ -21,5 +20,5 @@ gcloud compute firewall-rules create fw-ss-8388 \
   --network=default \
   --source-ranges=0.0.0.0/0 || echo "Firewall sudah ada"
 
-# Setelah selesai langsung close terminal
+# Selesai, langsung exit
 exit 0
