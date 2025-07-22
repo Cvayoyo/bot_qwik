@@ -12,10 +12,11 @@ nohup ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 1
 
 EOF
 
-# Buka firewall jika belum ada
+# Buka firewall hanya sekali (ignore error kalau sudah ada)
 gcloud compute firewall-rules create fw-ss-8388 \
   --allow tcp:8388,udp:8388 \
   --direction=INGRESS \
   --priority=1000 \
   --network=default \
   --source-ranges=0.0.0.0/0 || echo 'Firewall sudah ada'
+"
