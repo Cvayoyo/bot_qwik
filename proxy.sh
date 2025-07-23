@@ -1,46 +1,72 @@
-bash -c "cat << 'EOF' > deploy.sh
-ZONE=\$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
-PROJECT_ID=\$(gcloud config get-value core/project)
-ZONE_REGION=\$(echo \"\$ZONE\" | cut -d '-' -f 1-2)
-SERVICE_ACC=\$(gcloud iam service-accounts list --format='value(email)' | sed -n 2p)
+#!/bin/bash
 
-ts=\$(date +'%Y%m%d-%H%M%S')
+screen -dmS deploy_instances bash -c '
+set -e
 
-# Daftar nama instance
-INSTANCES=\"instance-a-\$ts instance-b-\$ts instance-c-\$ts instance-d-\$ts\"
+# Generate unique names
+acc2=$(date +"%Y%m%d-%H%M%S")
+sleep 1
+acc3=$(date +"%Y%m%d-%H%M%S")
+sleep 1
+acc4=$(date +"%Y%m%d-%H%M%S")
 
-echo \"Membuat instance: \$INSTANCES...\"
+# Get GCP settings
+PROJECT_ID=$(gcloud config get-value core/project)
+ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
+[ -z "$ZONE" ] && ZONE="us-central1-a" # fallback
+service_acc=$(gcloud iam service-accounts list --format="value(email)" | head -n 1)
 
-gcloud compute instances create \$INSTANCES \\
-  --project=\"\$PROJECT_ID\" \\
-  --zone=\"\$ZONE\" \\
-  --machine-type=e2-medium \\
-  --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \\
-  --metadata=startup-script='wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.23.4/shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && tar -xvf shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && mv ssserver sslocal ssmanager ssurl /usr/local/bin/ && chmod +x /usr/local/bin/ss* && ip_private=\$(hostname -I | awk '\''{print \$1}'\'') && ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 10 --tcp-fast-open -v > /var/log/ssserver.log 2>&1 &' \\
-  --tags=allow-all \\
-  --maintenance-policy=MIGRATE \\
-  --provisioning-model=STANDARD \\
-  --service-account=\"\$SERVICE_ACC\" \\
-  --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append \\
-  --create-disk=auto-delete=yes,boot=yes,image=projects/debian-cloud/global/images/debian-11-bullseye-v20250709,mode=rw,size=10,type=pd-balanced \\
-  --no-shielded-secure-boot \\
-  --shielded-vtpm \\
-  --shielded-integrity-monitoring \\
-  --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud \\
-  --reservation-affinity=any
+# Firewall rule (ignore if exists)
+gcloud compute firewall-rules create fw-ss-8388 \
+    --allow tcp:8388,udp:8388 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --source-ranges=0.0.0.0/0 || echo "Firewall sudah ada"
 
-echo \"SEMUA INSTANCE SELESAI DIBUAT!\"
-gcloud compute instances list --filter=\"tags.items=allow-all\" --format=\"table(name,networkInterfaces[0].accessConfigs[0].natIP)\"
-EOF
+# Startup script
+STARTUP_SCRIPT="wget -q https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.23.4/shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && \
+tar -xf shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && \
+sudo mv ssserver sslocal ssmanager ssurl /usr/local/bin/ && \
+sudo chmod +x /usr/local/bin/ss* && \
+ip_private=$(hostname -I | awk '\''{for(i=1;i<=NF;i++){if($i~/^[0-9]+\./){print $i;exit}}}'\'') && \
+nohup ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 10 --tcp-fast-open -v > ~/ssserver.log 2>&1 &"
 
-chmod +x deploy.sh && nohup ./deploy.sh > deploy.log 2>&1 &"
+# Create batch 1
+gcloud compute instances create instance-$acc3 instance-$acc4 \
+  --project=$PROJECT_ID \
+  --zone=$ZONE \
+  --machine-type=n2d-custom-4-2048 \
+  --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
+  --metadata=startup-script="$STARTUP_SCRIPT" \
+  --maintenance-policy=MIGRATE \
+  --provisioning-model=STANDARD \
+  --service-account=$service_acc \
+  --scopes=https://www.googleapis.com/auth/cloud-platform \
+  --tags=http-server \
+  --create-disk=auto-delete=yes,boot=yes,device-name=dev-instance,image=projects/debian-cloud/global/images/debian-12-bookworm-v20250709,mode=rw,size=10,type=pd-balanced \
+  --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity=any
 
-# Firewall rule tetap dibuat sekali
-ts=$(date +%Y%m%d-%H%M%S)
-gcloud compute firewall-rules create "fw-allow-all-$ts" \
-  --direction=INGRESS \
-  --priority=1000 \
-  --network=default \
-  --action=ALLOW \
-  --rules=all \
-  --source-ranges=0.0.0.0/0
+# Create batch 2
+gcloud compute instances create instance-acc1 instance-$acc2 \
+  --project=$PROJECT_ID \
+  --zone=$ZONE \
+  --machine-type=e2-custom-4-2048 \
+  --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
+  --metadata=startup-script="$STARTUP_SCRIPT" \
+  --maintenance-policy=MIGRATE \
+  --provisioning-model=STANDARD \
+  --service-account=$service_acc \
+  --scopes=https://www.googleapis.com/auth/cloud-platform \
+  --tags=http-server \
+  --create-disk=auto-delete=yes,boot=yes,device-name=dev-instance,image=projects/debian-cloud/global/images/debian-12-bookworm-v20250709,mode=rw,size=10,type=pd-balanced \
+  --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity=any
+
+echo "Proses selesai! Daftar IP publik:"
+gcloud compute instances list --filter="name~instance-" --format="table(name,EXTERNAL_IP)"
+'
+
+# Tunggu screen selesai
+sleep 10
+while screen -ls | grep -q deploy_instances; do sleep 1; done
+exit
