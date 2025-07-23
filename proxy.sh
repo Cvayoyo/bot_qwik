@@ -1,4 +1,3 @@
-#!/bin/bash
 service_acc=$(gcloud iam service-accounts list --format="value(email)" | sed -n 2p)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 PROJECT_ID=$(gcloud config get-value core/project)
