@@ -1,7 +1,55 @@
 service_acc=$(gcloud iam service-accounts list --format="value(email)" | sed -n 2p)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])")
 PROJECT_ID=$(gcloud config get-value core/project)
-ZONE_REGION=$(echo "$ZONE" | cut -d '''-''' -f 1-2)
-gcloud compute instances create dev-instance --project=$PROJECT_ID --zone=$ZONE --machine-type=n2d-custom-4-2048 --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default --metadata=startup-script="wget -q https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.23.4/shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && tar -xf shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && mv ssserver sslocal ssmanager ssurl /usr/local/bin/ && chmod +x /usr/local/bin/ss* && rm -f shadowsocks-v1.23.4.x86_64-unknown-linux-gnu.tar.xz && sysctl -w net.ipv4.tcp_fastopen=3 && sysctl -w net.ipv4.tcp_congestion_control=bbr && ulimit -n 1048576 && ip_private=\$(hostname -I | awk '{print \$1}') && echo 'Starting ssserver on '\$ip_private':8388' >> /var/log/ssserver.log && nohup ssserver -U -s \$ip_private:8388 -k Pass -m aes-128-gcm --worker-threads 10 --fast-open -v >> /var/log/ssserver.log 2>&1 &" --maintenance-policy=MIGRATE --provisioning-model=STANDARD --service-account=$service_acc --scopes=https://www.googleapis.com/auth/cloud-platform --tags=http-server --create-disk=auto-delete=yes,boot=yes,device-name=dev-instance,image=projects/debian-cloud/global/images/debian-12-bookworm-v20250709,mode=rw,size=10,type=pd-balanced --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud --reservation-affinity=any
-gcloud compute firewall-rules create fw-ss-8388 --allow tcp:8388,udp:8388 --direction=INGRESS --priority=1000 --network=default --source-ranges=0.0.0.0/0 || echo "Firewall sudah ada"
+ZONE_REGION=$(echo "$ZONE" | cut -d '-' -f 1-2)
+
+gcloud compute instances create dev-instance \
+  --project=$PROJECT_ID \
+  --zone=$ZONE \
+  --machine-type=n2d-custom-4-2048 \
+  --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
+  --metadata=startup-script="#!/bin/bash
+apt update
+apt install shadowsocks-libev -y
+
+cat > /etc/systemd/system/shadowsocks-server.service <<'EOF'
+[Unit]
+Description=Shadowsocks Rust Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c '/usr/bin/ss-server -u -s \$(hostname -I | awk \"{print \\\$1}\") -p 8388 -k Pass -m aes-128-gcm -n 65535 --fast-open --reuse-port --no-delay -v'
+Restart=always
+StandardOutput=file:/var/log/ssserver.log
+StandardError=file:/var/log/ssserver.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reexec
+systemctl daemon-reload
+systemctl enable shadowsocks-server
+systemctl start shadowsocks-server
+" \
+  --maintenance-policy=MIGRATE \
+  --provisioning-model=STANDARD \
+  --service-account=$service_acc \
+  --scopes=https://www.googleapis.com/auth/cloud-platform \
+  --tags=http-server \
+  --create-disk=auto-delete=yes,boot=yes,device-name=dev-instance,image=projects/debian-cloud/global/images/debian-12-bookworm-v20250709,mode=rw,size=10,type=pd-balanced \
+  --no-shielded-secure-boot \
+  --shielded-vtpm \
+  --shielded-integrity-monitoring \
+  --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud \
+  --reservation-affinity=any
+
+gcloud compute firewall-rules create fw-ss-8388 \
+  --allow tcp:8388,udp:8388 \
+  --direction=INGRESS \
+  --priority=1000 \
+  --network=default \
+  --source-ranges=0.0.0.0/0 || echo "Firewall sudah ada"
+
 echo "Proses selesai!"
