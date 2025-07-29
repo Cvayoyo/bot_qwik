@@ -6,7 +6,7 @@ ZONE_REGION=$(echo "$ZONE" | cut -d '-' -f 1-2)
 gcloud compute instances create dev-instance \
   --project=$PROJECT_ID \
   --zone=$ZONE	 \
-  --machine-type=c3d-standard-4 \
+  --machine-type=n4-standard-2 \
   --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
   --metadata=startup-script="#!/bin/bash
 apt update
