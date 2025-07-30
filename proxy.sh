@@ -19,7 +19,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c '/usr/bin/ss-server -u -s \$(hostname -I | awk \"{print \\\$1}\") -p 7777 -k Pass -m aes-128-gcm -n 65535 --fast-open --reuse-port --no-delay -v'
+ExecStart=/bin/bash -c '/usr/bin/ss-server -u -s \$(hostname -I | awk \"{print \\\$1}\") -p 8389 -k Pass -m aes-128-gcm -n 65535 --fast-open --reuse-port --no-delay -v'
 Restart=always
 StandardOutput=file:/var/log/ssserver.log
 StandardError=file:/var/log/ssserver.log
@@ -45,8 +45,8 @@ systemctl start shadowsocks-server
   --labels=goog-ops-agent-policy=v2-x86-template-1-4-0,goog-ec-src=vm_add-gcloud \
   --reservation-affinity=any
 
-gcloud compute firewall-rules create fw-ss-7777 \
-  --allow tcp:7777,udp:7777 \
+gcloud compute firewall-rules create fw-ss-8389 \
+  --allow tcp:8389,udp:8389 \
   --direction=INGRESS \
   --priority=1000 \
   --network=default \
