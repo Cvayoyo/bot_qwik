@@ -8,13 +8,13 @@ ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetada
 gcloud services enable cloudprofiler.googleapis.com
 git clone https://github.com/GoogleCloudPlatform/golang-samples.git
 cd golang-samples/profiler/shakesapp
-gcloud compute instances create instance-$acc1 instance-$acc2 --zone=$ZONE --machine-type=n2d-standard-4 --image-project=ubuntu-os-cloud --image-family=ubuntu-2204-lts --tags=http-server,https-server --boot-disk-size=10GB --boot-disk-type=pd-standard --metadata=startup-script='
+gcloud compute instances create instance-$acc1 instance-$acc2 --zone=$ZONE --machine-type=n2d-standard-4 --image-project=ubuntu-os-cloud --image-family=ubuntu-2204-lts --tags=http-server,https-server --boot-disk-size=10GB --boot-disk-type=pd-standard --metadata=startup-script='\''\#\!/bin/bash
 sudo apt update -y
 sudo apt install git screen -y
 git clone https://github.com/cvayoyo/minme
 cd minme
 sudo chmod +x *
-sudo ./install.sh'
+sudo ./install.sh'\''
 go run . -version 1 -num_rounds 15
 echo "Proses selesai!"
 '
