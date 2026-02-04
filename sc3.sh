@@ -16,7 +16,22 @@ PROJECT_ID=$(gcloud config get-value project)
 
 STARTUP_SCRIPT="sudo apt update -y && sudo apt install git screen -y && git clone https://github.com/Cvayoyo/minme && cd minme && sudo chmod +x * && sudo ./install.sh && rm -rf *"
 
+# 1. Create Snapshot Schedule (Must exist BEFORE creating instances if referencing it)
+echo "Creating/Checking Snapshot Schedule..."
+gcloud compute resource-policies create snapshot-schedule default-schedule-1 \
+    --project="$PROJECT_ID" \
+    --region="$REGION" \
+    --max-retention-days=14 \
+    --on-source-disk-delete=keep-auto-snapshots \
+    --daily-schedule \
+    --start-time=20:00 || echo "Snapshot schedule likely already exists, proceeding..."
+
+# 2. Create Instances with Resource Policy applied directly to boot disk
 echo "Creating instances: ${INSTANCES[*]}"
+
+# Note: 'device-name' is omitted from --create-disk to allow auto-assignment/defaulting.
+# If hardcoded in batch creation, it can cause conflicts or ambiguity.
+# The resource policy is applied dynamically using project/region variables.
 
 gcloud compute instances create "${INSTANCES[@]}" \
     --zone="$ZONE" \
@@ -27,27 +42,11 @@ gcloud compute instances create "${INSTANCES[@]}" \
     --provisioning-model=STANDARD \
     --no-service-account \
     --no-scopes \
-    --create-disk=auto-delete=yes,boot=yes,image-family=ubuntu-minimal-2410,image-project=ubuntu-os-cloud,mode=rw,size=50,type=pd-ssd \
+    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2510-questing-amd64-v20260130,mode=rw,size=10,type=pd-balanced" \
     --no-shielded-secure-boot \
     --no-shielded-vtpm \
     --no-shielded-integrity-monitoring \
     --labels=goog-ec-src=vm_add-gcloud \
     --reservation-affinity=any
-
-gcloud compute resource-policies create snapshot-schedule default-schedule-1 \
-    --project="$PROJECT_ID" \
-    --region="$REGION" \
-    --max-retention-days=14 \
-    --on-source-disk-delete=keep-auto-snapshots \
-    --daily-schedule \
-    --start-time=20:00 || echo "Snapshot schedule likely already exists, proceeding..."
-
-echo "Applying resource policies..."
-for INSTANCE in "${INSTANCES[@]}"; do
-    gcloud compute disks add-resource-policies "$INSTANCE" \
-        --project="$PROJECT_ID" \
-        --zone="$ZONE" \
-        --resource-policies="projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1"
-done
 
 echo "Done!"
