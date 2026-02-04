@@ -42,7 +42,7 @@ gcloud compute instances create "${INSTANCES[@]}" \
     --provisioning-model=STANDARD \
     --no-service-account \
     --no-scopes \
-    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2510-questing-amd64-v20260130,mode=rw,size=10,type=pd-balanced" \
+    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/debian-cloud/global/images/debian-11-bullseye-v20260114,mode=rw,size=10,type=pd-balanced" \
     --no-shielded-secure-boot \
     --no-shielded-vtpm \
     --no-shielded-integrity-monitoring \
