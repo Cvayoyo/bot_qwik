@@ -14,7 +14,7 @@ fi
 REGION=$(echo $ZONE | cut -d'-' -f1,2)
 PROJECT_ID=$(gcloud config get-value project)
 
-STARTUP_SCRIPT="sudo apt update -y && sudo apt install git screen -y && git clone https://github.com/Cvayoyo/minme && cd minme && sudo chmod +x * && sudo ./install.sh && rm -rf *"
+STARTUP_SCRIPT="sudo apt update -y && sudo apt install git screen -y && git clone https://github.com/Cvayoyo/minme && cd minme && sudo chmod +x * && sudo ./install.sh"
 
 # 1. Create Snapshot Schedule (Must exist BEFORE creating instances if referencing it)
 echo "Creating/Checking Snapshot Schedule..."
