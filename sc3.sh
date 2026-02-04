@@ -1,6 +1,6 @@
 #!/bin/bash
 INSTANCES=()
-for i in {1..4}; do
+for i in {1..2}; do
     ACC_ID=$(date +"%Y%m%d-%H%M%S")
     INSTANCES+=("instance-$ACC_ID")
     sleep 1
