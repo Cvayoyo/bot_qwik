@@ -1,6 +1,6 @@
 #!/bin/bash
 INSTANCES=()
-for i in {1..2}; do
+for i in {1..3}; do
     ACC_ID=$(date +"%Y%m%d-%H%M%S")
     INSTANCES+=("instance-$ACC_ID")
     sleep 1
@@ -42,11 +42,11 @@ gcloud compute instances create "${INSTANCES[@]}" \
     --provisioning-model=STANDARD \
     --no-service-account \
     --no-scopes \
-    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/debian-cloud/global/images/debian-11-bullseye-v20260114,mode=rw,size=10,type=pd-balanced" \
+    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/cloud-notebooks-managed/global/images/workbench-instances-v20260122,mode=rw,size=200,type=pd-ssd" \
     --no-shielded-secure-boot \
     --no-shielded-vtpm \
     --no-shielded-integrity-monitoring \
-    --labels=goog-ec-src=vm_add-gcloud \
+    --labels=goog-ec-src=vm_add-gcloud,notebooks-product=workbench-instances,resource-name=vertex-ai-jupyterlab \
     --reservation-affinity=any
 
 echo "Done!"
