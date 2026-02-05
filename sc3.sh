@@ -42,11 +42,11 @@ gcloud compute instances create "${INSTANCES[@]}" \
     --provisioning-model=STANDARD \
     --no-service-account \
     --no-scopes \
-    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/cloud-notebooks-managed/global/images/workbench-instances-v20260122,mode=rw,size=200,type=pd-ssd" \
+    --create-disk="auto-delete=yes,boot=yes,disk-resource-policy=projects/$PROJECT_ID/regions/$REGION/resourcePolicies/default-schedule-1,image=projects/ml-images/global/images/c0-deeplearning-common-cpu-v20250325-debian-11,mode=rw,size=50,type=pd-balanced" \
     --no-shielded-secure-boot \
     --no-shielded-vtpm \
     --no-shielded-integrity-monitoring \
-    --labels=goog-ec-src=vm_add-gcloud,notebooks-product=workbench-instances,resource-name=vertex-ai-jupyterlab \
+    --labels=goog-ec-src=vm_add-gcloud \
     --reservation-affinity=any
 
 echo "Done!"
