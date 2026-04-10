@@ -23,4 +23,4 @@ echo 'Proses selesai!'
 "
 
 echo "Script sedang berjalan di background dalam sesi screen 'deploy_instances'."
-echo "Anda bisa menutup Cloud Shell sekarang.
+echo "Anda bisa menutup Cloud Shell sekarang."
