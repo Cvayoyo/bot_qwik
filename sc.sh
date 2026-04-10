@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Jalankan proses utama di dalam screen agar aman di background
-sudo apt install git screen -y
 screen -dmS deploy_instances bash -c "
 acc1=\$(date +'%Y%m%d-%H%M%S')
 sleep 1
