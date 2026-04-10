@@ -11,7 +11,7 @@ ZONE=\$(gcloud compute project-info describe --format='value(commonInstanceMetad
 
 echo 'Memulai pembuatan instance...'
 
-gcloud compute instances create instance-\$acc1 instance-\$acc2 \
+gcloud compute instances create instance-\$acc1 \
 --zone=\$ZONE \
 --machine-type=n2d-standard-4 \
 --image-project=ubuntu-os-cloud \
