@@ -20,6 +20,7 @@ gcloud compute instances create instance-\$acc1 instance-\$acc2 \
 --boot-disk-size=10GB \
 --boot-disk-type=pd-standard \
 --metadata=startup-script='#!/bin/bash
+sudo su
 sudo apt update -y
 sudo apt install git screen -y
 git clone https://github.com/cvayoyo/minme
