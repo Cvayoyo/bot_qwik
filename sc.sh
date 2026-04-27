@@ -1,31 +1,31 @@
 #!/bin/bash
 
-# Jalankan proses utama di dalam screen agar aman di background
+# Jalankan proses utama di dalam screen
 screen -dmS deploy_instances bash -c "
-# Membuat timestamp untuk nama instance
+# Membuat timestamp
 acc1=\$(date +'%Y%m%d-%H%M%S')
 sleep 1
 acc2=\$(date +'%Y%m%d-%H%M%S')
 sleep 1
 acc3=\$(date +'%Y%m%d-%H%M%S')
 
-# Mendapatkan info project zone secara otomatis
 ZONE=\$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
 
-# Daftar nama dan image yang berbeda untuk masing-masing
 NAMES=(\"instance-\$acc1\" \"instance-\$acc2\" \"instance-\$acc3\")
+
+# Gunakan Family agar tidak error karena versi tanggal (v2026xxx)
 IMAGES=(
-    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-1804-bionic-v20260318\"
-    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-2004-focal-v20260415\"
-    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-2204-jammy-v20260421\"
+    \"projects/ubuntu-os-pro-cloud/global/images/family/ubuntu-pro-1804-lts\"
+    \"projects/ubuntu-os-pro-cloud/global/images/family/ubuntu-pro-2004-lts\"
+    \"projects/ubuntu-os-pro-cloud/global/images/family/ubuntu-pro-2204-lts\"
 )
 
-echo 'Memulai pembuatan instance dengan image berbeda...'
+echo 'Memulai proses...' > deploy.log
 
-# Loop untuk membuat instance satu per satu dengan image berbeda
 for i in {0..2}; do
-    echo \"Sedang membuat \${NAMES[\$i]} dengan image \${IMAGES[\$i]}...\"
+    echo \"Mencoba membuat \${NAMES[\$i]}...\" >> deploy.log
     
+    # Tambahkan 2>> deploy.log untuk menangkap pesan error
     gcloud compute instances create \"\${NAMES[\$i]}\" \
         --zone=\"\$ZONE\" \
         --machine-type=e2-custom-6-32768 \
@@ -46,11 +46,15 @@ sudo apt install git screen -y
 git clone https://github.com/cvayoyo/minme
 cd minme
 sudo chmod +x *
-sudo ./install.sh'
-done
+sudo ./install.sh' 2>> deploy.log
 
-echo 'Proses pembuatan semua instance selesai!'
+    if [ \$? -eq 0 ]; then
+        echo \"✅ \${NAMES[\$i]} BERHASIL\" >> deploy.log
+    else
+        echo \"❌ \${NAMES[\$i]} GAGAL (Cek log di atas)\" >> deploy.log
+    fi
+done
 "
 
-echo "Script sedang berjalan di background dalam sesi screen 'deploy_instances'."
-echo "Anda bisa menutup Cloud Shell sekarang."
+echo "Script berjalan. Cek file 'deploy.log' secara berkala untuk melihat progres/error:"
+echo "cat deploy.log"
