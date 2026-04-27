@@ -16,8 +16,8 @@ ZONE=\$(gcloud compute project-info describe --format='value(commonInstanceMetad
 NAMES=(\"instance-\$acc1\" \"instance-\$acc2\" \"instance-\$acc3\")
 IMAGES=(
     \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-1804-bionic-v20260318\"
-    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-2004-focal-v20240307\"
-    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-2204-jammy-v20240307\"
+    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-2004-focal-v20260415\"
+    \"projects/ubuntu-os-pro-cloud/global/images/ubuntu-minimal-pro-2204-jammy-v20260421\"
 )
 
 echo 'Memulai pembuatan instance dengan image berbeda...'
